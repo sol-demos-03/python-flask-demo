@@ -1,0 +1,12 @@
+---
+version: 1
+kind: component
+meta:
+  name: container-app-workspace
+  brief: Prepare workspace for container applications
+  source:
+    dir: components/container-app-workspace
+
+parameters:
+  - name: component.docker.auth.kind
+    env: DOCKER_AUTH_KIND

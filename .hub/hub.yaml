@@ -1,0 +1,140 @@
+version: 1
+kind: application
+meta:
+  name: 'python-flask:1'
+  brief: Python Flask webservice
+  source:
+    dir: .
+requires:
+  - kubernetes
+  - jenkins
+components:
+  - name: pull-secret-jenkins
+    source:
+      dir: components/pull-secret
+  - name: pull-secret-apps
+    source:
+      dir: components/pull-secret
+  - name: container-app-workspace
+    source:
+      dir: components/container-app-workspace
+  - name: github-repository
+    source:
+      dir: components/github-repository
+outputs:
+  - name: application.docker.image
+    value: '${component.docker.registry.image}'
+  - name: application.name
+    value: '${application.name}'
+  - name: application.namespace
+    value: '${application.namespace}'
+  - name: application.jenkins.namespace
+    value: '${component.jenkins.namespace}'
+  - name: application.fqdn
+    value: '${application.ingress}'
+  - name: application.path
+    value: '${application.path}'
+  - name: application.port
+  - name: application.url
+    value: '${component.ingress.protocol}://${application.ingress}${application.path}'
+  - name: application.jenkins.pipeline.url
+    value: >-
+      ${component.jenkins.url}/job/${application.name}/job/${application.pipeline.name}-${application.name}
+  - name: application.promotion.templates
+    value: 'simple-promote,container-promotion'
+  - name: application.git.remote
+    value: '${component.git.remote}'
+  - name: application.git.user
+    value: '${component.git.organization}'
+  - name: application.git.kind
+    values: '${application.git.kind}'
+templates:
+  files:
+    - templates/*.template
+    - templates/ecr/*.template
+    - templates/basic/*.template
+    - templates/gcr/*.template
+parameters:
+  - name: application.name
+    value: python-flask
+    env: APPLICATION_NAME
+  - name: application.description
+    value: Python Flask webservice
+  - name: application.namespace
+    value: applications
+  - name: application.replicas
+    value: 1
+  - name: application.version
+    value: latest
+  - name: application.port
+    value: 8080
+  - name: application.state.file
+    fromEnv: APP_STATE_FILE
+  - name: application.ingress
+    value: '${application.name}.${component.ingress.fqdn}'
+  - name: application.path
+    value: /
+  - name: application.environment.name
+    value: ''
+  - name: application.pipeline.name
+    value: main
+  - name: component.ingress.protocol
+  - name: component.ingress.fqdn
+  - name: component.docker.registry.image
+  - name: component.docker.registry.kind
+    env: DOCKER_REGISTRY_KIND
+  - name: component.jenkins.url
+  - name: component.jenkins.namespace
+    value: jenkins
+  - name: dns.domain
+    env: DOMAIN_NAME
+  - name: cloud.region
+  - name: terraform.bucket.name
+  - name: terraform.bucket.region
+  - name: component.pullSecret.name
+    component: pull-secret-jenkins
+    value: '${application.name}-pullsecret'
+  - name: component.pullSecret.namespace
+    component: pull-secret-jenkins
+    value: '${component.jenkins.namespace}'
+  - name: component.pullSecret.name
+    component: pull-secret-apps
+    value: '${application.name}-pullsecret'
+  - name: component.pullSecret.namespace
+    component: pull-secret-apps
+    value: '${application.namespace}'
+  - name: component.docker.auth.basic.password
+    fromEnv: COMPONENT_DOCKER_AUTH_BASIC_PASSWORD
+  - name: docker.config.reference
+    kind: link
+    value: '${pull-secret-apps:component.pullSecret.name}'
+  - name: component.docker.auth.kind
+    value: basic
+    env: DOCKER_AUTH_KIND
+  - name: application.git.kind
+    value: github
+  - name: component.github.token
+    fromEnv: COMPONENT_GITHUB_TOKEN
+    default: token
+  - name: component.github.repository.organization
+    kind: user
+  - name: component.github.repository.name
+    value: python-flask
+  - name: component.github.webhook.name
+    value: github
+  - name: component.github.webhook.events.json
+    value: '["push"]'
+  - name: component.github.repository.description
+    value: |
+      Python Flask webservice
+  - name: component.git.remote
+  - name: component.git.organization
+    value: '${component.github.repository.organization}'
+  - name: component.git.token
+    value: '${component.github.token}'
+lifecycle:
+  order:
+    - pull-secret-jenkins
+    - pull-secret-apps
+    - container-app-workspace
+    - github-repository

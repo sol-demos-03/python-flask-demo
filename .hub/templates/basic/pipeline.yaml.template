@@ -1,0 +1,21 @@
+---
+apiVersion: "jenkins.agilestacks.com/v1"
+kind: Pipeline
+metadata:
+  name: ${application.pipeline.name}-${application.name}
+spec:
+  repositoryUrl: ${component.git.remote}
+  credentialsId: ${application.git.kind}-${component.git.organization}
+  folder: ${application.name}
+  branchSpec: '*/master'
+  pipeline: Jenkinsfile
+  origin: 'SuperHub'
+  parameters:
+    - name: APPLICATION_NAME
+      type: string
+      defaultValue: ${application.name}
+      description: 'Application name'
+    - name: DOCKER_CONFIG_REF
+      type: string
+      defaultValue: ${docker.config.reference}
+      description: 'Jenkins Pod Template configuration reference'
