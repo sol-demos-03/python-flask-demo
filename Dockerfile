@@ -21,4 +21,4 @@ RUN python -c 'import os; print("SECRET_KEY =",os.urandom(16))' > $FLASK_INSTANC
 RUN pip install waitress
 
 EXPOSE 8080
-ENTRYPOINT ["waitress-serve", "--call", "api:create_app"]
+ENTRYPOINT ["waitress-serve", "--call", "rest_api:app"]
