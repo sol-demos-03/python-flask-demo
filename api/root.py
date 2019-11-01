@@ -22,8 +22,8 @@ def root():
 
     return json_response(
         200,
-        name=name,
-        version=version,
+        hello="world",
+        version=20,
         uptime=uptime(),
         environment_name=environment_name,
     )
