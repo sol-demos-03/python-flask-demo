@@ -186,4 +186,4 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
 
   
 if __name__ == '__main__':
-    app.run(port = 9000, debug = True)
+    app.run(port = 8080, debug = True)
