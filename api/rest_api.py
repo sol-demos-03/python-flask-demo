@@ -35,7 +35,7 @@ autoencoder._make_predict_function()
 
 print("Server Running...")
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='public')
 
 @app.route('/api/v1/score', methods=['POST'])
 def make_score():
@@ -73,13 +73,15 @@ def make_score():
     print(response)
     return response
 
+@app.route('/<path:subpath>', methods=['GET'])
+def public(subpath):
+    #return subpath
+    return send_from_directory('public', subpath)
+
 @app.route('/', methods=['GET'])
 def root():
-    return send_from_directory('public', 'index.html')
+    return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/<path:path>', methods=['GET'])
-def public(path):
-    return send_from_directory('public', path)
 
 def load(data):
     G = json_graph.node_link_graph(data)
