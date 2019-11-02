@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 from networkx.readwrite import json_graph
-from flask import Flask, abort, jsonify, request
+from flask import Flask, abort, jsonify, request, send_from_directory
 from keras.models import Model, load_model
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import hashlib
@@ -16,27 +16,26 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import numpy.distutils.system_info as sysinfo
 auto_threshold = 0
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)  #, module='gensim') 
+warnings.filterwarnings("ignore", category=UserWarning)  #, module='gensim')
 import os
 import tensorflow as tf
 
 print("initting tf")
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 print("loading autoencoder model")
 
 autoencoder = load_model("api/autoencoder.h5")
-autoencoder.compile(optimizer='adam', 
-                    loss='mean_squared_error', 
+autoencoder.compile(optimizer='adam',
+                    loss='mean_squared_error',
                     metrics=['accuracy'])
 autoencoder._make_predict_function()
 
 print("Server Running...")
 
-app = Flask(__name__, static_folder='public')
-
+app = Flask(__name__)
 
 @app.route('/api/v1/score', methods=['POST'])
 def make_score():
@@ -64,8 +63,8 @@ def make_score():
         if val > auto_threshold:
             output.append(1)
         else:
-            output.append(0) 
-    
+            output.append(0)
+
     response = app.response_class(
         response=json.dumps(output),
         status=200,
@@ -74,25 +73,25 @@ def make_score():
     print(response)
     return response
 
-@app.route('/')
-    return render_template('index.html')
+@app.route('/', methods=['GET'])
+def root():
+    return send_from_directory('public', 'index.html')
 
-@app.route('/<string:page_name>/')
-def render_static(page_name):
-    return render_template('%s.html' % page_name)
+@app.route('/<path:path>', methods=['GET'])
+def public(path):
+    return send_from_directory('public', path)
 
-    
 def load(data):
     G = json_graph.node_link_graph(data)
     return G
-    
+
 def getCCs(G):
     CC_subgraphs= []
     for cc in list(nx.connected_components(G.to_undirected())):
         CC_subgraphs.append(G.subgraph(cc).copy())
 
     return CC_subgraphs
-    
+
 class WeisfeilerLehmanMachine:
     """
     Weisfeiler Lehman feature extractor class.
@@ -133,7 +132,7 @@ class WeisfeilerLehmanMachine:
         """
         for iteration in range(self.iterations):
             self.features = self.iterate()
-            
+
 def feature_extractor(index, graph, rounds):
     """
     Function to extract WL features from a graph.
@@ -146,8 +145,8 @@ def feature_extractor(index, graph, rounds):
     machine = WeisfeilerLehmanMachine(graph,features,rounds)
     doc = TaggedDocument(words = machine.extracted_features , tags = ["g_" + str(index)])
     return doc
-    
-    
+
+
 def ret_embedding(model, ids, dimensions):
     """
     Function to save the embedding.
@@ -163,9 +162,9 @@ def ret_embedding(model, ids, dimensions):
     out = pd.DataFrame(out,columns = ["type"] +["x_" +str(dimension) for dimension in range(dimensions)])
     out = out.sort_values(["type"])
     return out
-    
-    
-def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1, 
+
+
+def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
                  min_count=5, wl_iters=2, learning_rate=0.025, sampling_rate=0.0001):
     """
     Execution harness for graph2vec algorithm. Parameter list:
@@ -175,9 +174,9 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
     - min_count      INT          Minimal feature count to keep.                    Default is 5.
     - wl_iters       INT          Number of feature extraction recursions.          Default is 2.
     - learning_rate  FLOAT        Initial learning rate.                            Default is 0.025.
-    - sampling_rate  FLOAT        Down sampling rate for frequent features.         Default is 0.0001.    
+    - sampling_rate  FLOAT        Down sampling rate for frequent features.         Default is 0.0001.
     """
-    
+
     print("\nFeature extraction started.\n")
     # watch out for trouble here
     ConnectedComps = getCCs(graph)
@@ -195,11 +194,9 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
 
     subgraph_ids = list(range(len(ConnectedComps)))
     return ret_embedding(model, subgraph_ids, n_dims)
-    
-    #TODO: consider adding timing or feedback to track progress of the algorithm    
-    
-   
 
-  
+    #TODO: consider adding timing or feedback to track progress of the algorithm
+
+
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port = 8080, debug = True)

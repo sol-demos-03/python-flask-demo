@@ -9,6 +9,7 @@ RUN pip install -r requirements.txt
 
 COPY ./setup.cfg .
 COPY ./setup.py .
+#COPY ./public public
 COPY ./README.md .
 
 # Setup
