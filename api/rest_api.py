@@ -19,17 +19,24 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)  #, module='gensim') 
 import os
 import tensorflow as tf
+
+print("initting tf")
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
-autoencoder = load_model("autoencoder.h5")
+print("loading autoencoder model")
+
+autoencoder = load_model("api/autoencoder.h5")
 autoencoder.compile(optimizer='adam', 
                     loss='mean_squared_error', 
                     metrics=['accuracy'])
 autoencoder._make_predict_function()
-#print("Server Running...")
+
+print("Server Running...")
 
 app = Flask(__name__)
+
 @app.route('/score', methods=['POST'])
 def make_score():
     data = request.get_json(force=True)
@@ -186,4 +193,4 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
 
   
 if __name__ == '__main__':
-    app.run(port = 8080, debug = True)
+    app.run(host = "0.0.0.0", port = 8080, debug = True)
