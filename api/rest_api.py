@@ -19,8 +19,13 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)  #, module='gensim')
 import os
 import tensorflow as tf
+import multiprocessing
+from kafka import KafkaConsumer, KafkaProducer
+import requests
 
 print("initting tf")
+
+KAFKA_HOST=kafka-swift-ml-ol-kafka.kafka
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -199,6 +204,20 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
 
     #TODO: consider adding timing or feedback to track progress of the algorithm
 
+def consumeQueue():
+    consumer = KafkaConsumer(bootstrap_servers=KAFKA_HOST)
+    consumer.subscribe(['cctxns'])
+    producer = KafkaProducer(bootstrap_servers=KAFKA_HOST)
+    for msg in consumer:
+        r = requests.post('http://127.0.0.1:8080/api/v1/score', data=msg)
+        if r.status_code > 199 and r.status_code < 300:
+            result = r.json()
+            producer.send('ccresults', json.dumps(result))
+        else:
+            print(f"response returned status code: {r.status_code}")
+            print(r.text)
 
 if __name__ == '__main__':
+    p = Process(target=consumeQueue,args=())
+    p.start()
     app.run(host = "0.0.0.0", port = 8080, debug = True)
