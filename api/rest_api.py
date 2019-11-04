@@ -44,9 +44,9 @@ def make_score():
     # Running the Graph2Vec algorithm unparallelized
     result = runGraph2Vec(graph=graph, min_count=1, n_dims=64, n_workers=1)  # result as a pd dataframe
     result = result.drop(['type'], axis=1)
-    with open('transformer', 'rb') as handle:
+    with open('api/transformer', 'rb') as handle:
         num_pipeline = pickle.load(handle)
-    with open('threshold', 'rb') as handle:
+    with open('api/threshold', 'rb') as handle:
         auto_threshold = pickle.load(handle)
 
     print("Graph embedding:")
