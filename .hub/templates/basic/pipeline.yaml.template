@@ -19,7 +19,4 @@ spec:
       type: string
       defaultValue: ${docker.config.reference}
       description: 'Jenkins Pod Template configuration reference'
-    - name: KAFKA_ENDPOINT
-      defaultValue: ${kafka.endpoint}
-    - name: KAFKA_RESULT_TOPIC
-      defaultValue: ${kafka.result.topic}
+
