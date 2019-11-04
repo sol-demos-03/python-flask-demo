@@ -1,0 +1,2 @@
+foo: ${kafka.endpoint}
+bar: ${kafka.result.topic}
