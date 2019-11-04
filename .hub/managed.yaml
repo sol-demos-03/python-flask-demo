@@ -43,6 +43,8 @@ parameters:
     value: python-flask-demo
   - name: component.github.repository.organization
     value: sol-demos-03
+  - name: ekrpatverv-orpte
+    value: axjeoeui
 outputs:
   - name: application.description
   - name: application.humanName
@@ -65,3 +67,4 @@ outputs:
   - name: component.docker.registry.url
   - name: component.github.repository.name
   - name: component.github.repository.organization
+  - name: ekrpatverv-orpte
