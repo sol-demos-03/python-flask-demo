@@ -100,14 +100,14 @@ pipeline {
     stage('Lint') {
       steps {
         container('buildbox') {
-          sh script: 'true'
+          sh script: 'make lint'
         }
       }
     }
     stage('Test') {
       steps {
         container('buildbox') {
-          sh script: 'true'
+          sh script: 'make pytest'
         }
       }
     }
