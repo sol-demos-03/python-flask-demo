@@ -84,7 +84,8 @@ pipeline {
       steps {
         container('toolbox') {
           script {
-            hub.render(template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state")
+            mytimestamp = new Date().time
+            hub.render(template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state", additional=['annotation.timestamp': mytimestamp)
             stackOutputs = hub.explain(state: "/tmp/.hub/hub.state").stackOutputs
           }
         }
@@ -137,7 +138,6 @@ pipeline {
               sh script: "kubectl create namespace ${stackOutputs['application.namespace']}"
             }
             final kubectl = "kubectl -n ${stackOutputs['application.namespace']}"
-	    sh script: "yq w -i kubernetes.yaml metadata.annotations.jenkinsDeployTimestamp ts-`date +'%s'`"
             sh script: "cat kubernetes.yaml"
             sh script: "${kubectl} apply --force --record -f kubernetes.yaml"
           }

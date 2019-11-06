@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: ${application.name}
   namespace: ${application.namespace}
+  annotations:
+    jenkinsDeployTimestamp: ${annotation.timestamp}
   labels:
     app: ${application.name}
 spec:
