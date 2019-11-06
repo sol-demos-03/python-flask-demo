@@ -85,7 +85,7 @@ pipeline {
         container('toolbox') {
           script {
             mytimestamp = new Date().time
-            hub.render(template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state", additional=['annotation.timestamp': mytimestamp)
+            hub.render(template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state", additional=['annotation.timestamp': mytimestamp])
             stackOutputs = hub.explain(state: "/tmp/.hub/hub.state").stackOutputs
           }
         }
