@@ -218,6 +218,6 @@ def consumeQueue():
             print(r.text)
 
 if __name__ == '__main__':
-    p = Process(target=consumeQueue,args=())
+    p = multiprocessing.Process(target=consumeQueue,args=())
     p.start()
     app.run(host = "0.0.0.0", port = 8080, debug = True)
