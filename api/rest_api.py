@@ -205,12 +205,11 @@ def runGraph2Vec(graph, n_dims=128, n_workers=4, n_epochs=1,
     #TODO: consider adding timing or feedback to track progress of the algorithm
 
 def consumeQueue():
-    consumer = KafkaConsumer(bootstrap_servers=KAFKA_HOST)
+    consumer = KafkaConsumer(bootstrap_servers=KAFKA_HOST, value_deserializer=lambda m: json.loads(m.decode('utf-8')),)
     consumer.subscribe(['cctxns'])
     producer = KafkaProducer(bootstrap_servers=KAFKA_HOST)
     for msg in consumer:
-        m = json.loads(msg.decode('utf-8'))
-        r = requests.post('http://127.0.0.1:8080/api/v1/score', json=m)
+        r = requests.post('http://127.0.0.1:8080/api/v1/score', msg.value)
         if r.status_code > 199 and r.status_code < 300:
             result = r.json()
             producer.send('ccresults', json.dumps(result))
