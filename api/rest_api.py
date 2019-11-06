@@ -25,7 +25,7 @@ import requests
 
 print("initting tf")
 
-KAFKA_HOST=kafka-swift-ml-ol-kafka.kafka
+KAFKA_HOST="kafka-swift-ml-ol-kafka.kafka"
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
