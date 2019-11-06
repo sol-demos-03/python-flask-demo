@@ -209,7 +209,8 @@ def consumeQueue():
     consumer.subscribe(['cctxns'])
     producer = KafkaProducer(bootstrap_servers=KAFKA_HOST)
     for msg in consumer:
-        r = requests.post('http://127.0.0.1:8080/api/v1/score', data=msg)
+        m = json.loads(msg.decode('utf-8'))
+        r = requests.post('http://127.0.0.1:8080/api/v1/score', json=m)
         if r.status_code > 199 and r.status_code < 300:
             result = r.json()
             producer.send('ccresults', json.dumps(result))
