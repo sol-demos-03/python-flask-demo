@@ -4,7 +4,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 
 # do this first so we don't keep re-running it when source changes
-COPY ./requirements.txt .
+COPY ./app_requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
 
 COPY ./setup.cfg .
