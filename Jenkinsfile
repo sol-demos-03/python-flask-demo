@@ -137,6 +137,7 @@ pipeline {
               sh script: "kubectl create namespace ${stackOutputs['application.namespace']}"
             }
             final kubectl = "kubectl -n ${stackOutputs['application.namespace']}"
+	    sh script: "yq w kubernetes.yaml metadata.annotations.deploy-timestamp `date +'%s'`"
             sh script: "${kubectl} apply --force --record -f kubernetes.yaml"
           }
         }
