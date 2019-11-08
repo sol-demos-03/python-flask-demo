@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: ${application.name}
   namespace: ${application.namespace}
-  annotations:
-    jenkinsDeployTimestamp: "${annotation.timestamp}"
   labels:
     app: ${application.name}
 spec:
@@ -17,8 +15,6 @@ spec:
     metadata:
       name: ${application.name}
       namespace: ${application.namespace}
-      annotations:
-        jenkinsDeployTimestamp: "${annotation.timestamp}"
       labels:
         app: ${application.name}
         version: ${application.version}
@@ -34,12 +30,12 @@ spec:
           containerPort: ${application.port}
         readinessProbe:
           httpGet:
-            path: /
+            path: /status
             port: http
           initialDelaySeconds: 5
         livenessProbe:
           httpGet:
-            path: /
+            path: /status
             port: http
           initialDelaySeconds: 5
           timeoutSeconds: 1

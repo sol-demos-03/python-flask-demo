@@ -84,8 +84,7 @@ pipeline {
       steps {
         container('toolbox') {
           script {
-            mytimestamp = new Date().time
-            hub.render([template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state", additional: ['annotation.timestamp': mytimestamp]])
+            hub.render(template: "kubernetes.yaml.template", state: "/tmp/.hub/hub.state")
             stackOutputs = hub.explain(state: "/tmp/.hub/hub.state").stackOutputs
           }
         }
@@ -101,14 +100,14 @@ pipeline {
     stage('Lint') {
       steps {
         container('buildbox') {
-          sh script: 'true'
+          sh script: 'make lint'
         }
       }
     }
     stage('Test') {
       steps {
         container('buildbox') {
-          sh script: 'true'
+          sh script: 'make pytest'
         }
       }
     }
@@ -138,7 +137,6 @@ pipeline {
               sh script: "kubectl create namespace ${stackOutputs['application.namespace']}"
             }
             final kubectl = "kubectl -n ${stackOutputs['application.namespace']}"
-            sh script: "cat kubernetes.yaml"
             sh script: "${kubectl} apply --force --record -f kubernetes.yaml"
           }
         }
