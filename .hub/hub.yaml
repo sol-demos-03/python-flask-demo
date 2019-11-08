@@ -103,8 +103,10 @@ parameters:
   - name: component.pullSecret.namespace
     component: pull-secret-apps
     value: '${application.namespace}'
+#  - name: component.docker.auth.basic.password
+#    fromEnv: COMPONENT_DOCKER_AUTH_BASIC_PASSWORD
   - name: component.docker.auth.basic.password
-    fromEnv: COMPONENT_DOCKER_AUTH_BASIC_PASSWORD
+    value: Harbor12345
   - name: docker.config.reference
     kind: link
     value: '${pull-secret-apps:component.pullSecret.name}'
